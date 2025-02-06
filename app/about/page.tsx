@@ -3,7 +3,7 @@ import Hero from "../components/Hero"
 import Feature from "../components/Feature"
 import Image from "next/image"
 import Link from "next/link"
-import PageNumber from "../components/PageNumber"
+
 
 export default function Page() {
     return (
@@ -243,7 +243,7 @@ export default function Page() {
 
 
 
-                <PageNumber />
+
 
 
 

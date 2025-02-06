@@ -10,6 +10,9 @@ export interface Product {
     };
     price: number;
     description?: string;
+    slug: {
+        _type: "slug";
+    };
 
 
 }

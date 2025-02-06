@@ -13,6 +13,7 @@ import { useEffect, useState } from "react"
 import { Product } from "@/types/products"
 import { client } from "@/sanity/lib/client"
 import { allProducts } from "@/sanity/lib/queries"
+import Link from "next/link"
 
 
 
@@ -34,13 +35,15 @@ export default function Page() {
                 <Hero name="Shop" />
                 <section className="grid lg:grid-cols-4 grid-flow-row gap-32 lg:px-16  py-4 items-center justify-center lg:justify-start lg:mr-16">
                     {product.map((product) => (
-                        <ProductCard
-                            key={product._id}
-                            _id={product._id}
-                            name={product.name}
-                            price={product.price}
-                            image={product.image}
-                        />
+                        <Link href={`/product/${product.slug.current}`} key={product._id}>
+                            <ProductCard
+                                key={product._id}
+                                _id={product._id}
+                                name={product.name}
+                                price={product.price}
+                                image={product.image}
+                            />
+                        </Link>
                     ))}
                 </section>
                 <Feature />

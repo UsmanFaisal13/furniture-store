@@ -15,6 +15,14 @@ export const product = {
             type: 'string',
         },
         {
+            name: 'slug',
+            title: 'Slug',
+            type: 'slug',
+            options: {
+                source: 'name',
+            },
+        },
+        {
             name: 'imagePath',
             title: 'Image Path',
             type: 'url',
