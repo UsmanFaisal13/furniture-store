@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 import Header from "../components/Header"
 import Hero from "../components/Hero"
@@ -9,7 +10,7 @@ import { client } from "@/sanity/lib/client"
 import { allProducts } from "@/sanity/lib/queries"
 import Link from "next/link"
 import { SanityImageSource } from '@sanity/image-url/lib/types/types'
-import { addToCart } from "../actions/actions"
+
 
 interface Product {
     _id: string
@@ -32,10 +33,7 @@ export default function Page() {
         };
         fetchproduct()
     }, [])
-    const handleAddToCart = (e: React.MouseEvent, product: Product) => {
-        e.preventDefault()
-        addToCart(product)
-    }
+
 
 
     return (
