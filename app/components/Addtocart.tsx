@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 import { addToCart } from "../actions/actions"
 import { Product } from "@/types/products"
