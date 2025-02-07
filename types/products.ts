@@ -13,6 +13,8 @@ export interface Product {
     slug: {
         _type: "slug";
     };
+    stockLevel: number;
+    inventory: number;
 
 
 }

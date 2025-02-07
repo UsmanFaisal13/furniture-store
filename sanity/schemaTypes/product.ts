@@ -52,6 +52,12 @@ export const product = {
             title: 'Stock Level',
             type: 'number',
         },
+        {
+            name: 'inventory',
+            title: 'Inventory',
+            type: 'number',
+
+        },
 
         {
             name: 'category',

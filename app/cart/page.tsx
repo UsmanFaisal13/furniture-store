@@ -1,86 +1,172 @@
-import Header from "../components/Header"
-import Hero from "../components/Hero"
-import Feature from "../components/Feature"
-import Image from "next/image"
-import Link from "next/link"
+"use client";
 
-export default function Page() {
+import { Product } from "@/types/products";
+import React, { useEffect, useState } from "react";
+import Header from "../components/Header";
+import {
+    getCartItems,
+    removeFromCart,
+    updateCartQuantity,
+} from "../actions/actions";
+import Image from "next/image";
+import { urlFor } from "@/sanity/lib/image";
+import Swal from "sweetalert2";
+import Feature from "../components/Feature";
+import Hero from "../components/Hero";
+
+const CartPage = () => {
+    const [cartItems, setCartItems] = useState<Product[]>([]);
+
+    useEffect(() => {
+        setCartItems(getCartItems());
+    }, []);
+
+    const handleRemove = (id: string) => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to undo this action!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, remove it!",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                removeFromCart(id);
+                setCartItems(getCartItems());
+                Swal.fire(
+                    "Removed!",
+                    "Item has been removed from your cart.",
+                    "success"
+                );
+            }
+        });
+    };
+
+    const handleQuantityChange = (id: string, quantity: number) => {
+        updateCartQuantity(id, quantity);
+        setCartItems(getCartItems());
+    };
+
+    const handleIncrement = (id: string) => {
+        const product = cartItems.find((item) => item._id === id);
+        if (product) {
+            handleQuantityChange(id, product.inventory + 1);
+        }
+    };
+
+    const handleDecrement = (id: string) => {
+        const product = cartItems.find((item) => item._id === id);
+        if (product && product.inventory > 1) {
+            handleQuantityChange(id, product.inventory - 1);
+        }
+    };
+
+    const calculateTotal = () => {
+        return cartItems.reduce(
+            (total, item) => total + item.price * item.inventory,
+            0
+        );
+    };
+
+    const handleProceed = () => {
+        Swal.fire({
+            title: "Processing your order...",
+            text: "Please wait a moment.",
+            icon: "info",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Proceed",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire(
+                    "Success!",
+                    "Your order has been successfully processed!",
+                    "success"
+                );
+
+                setCartItems([]);
+            }
+        });
+    };
     return (
         <>
             <Header />
-            <Hero name="Cart" />
-            <main className=" mb-80 lg:mb-0">
-                <section className="w-full py-8 w-6xl mx-auto  ">
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 "><div className="md:col-span-2 rounded-lg lg:p-6 flex flex-col overflow-x-auto">
-                        <table className="w-full text-left block md:table">
-                            <thead className="block md:table-header-group ">
-                                <tr className="bg-[#FFF9E5]  block md:table-row">
-                                    <th className="py-2  lg:text-center font-medium  block md:table-cell">Product</th>
-                                    <th className="py-4 font-medium block md:table-cell">Price</th>
-                                    <th className="py-2 font-medium block md:table-cell">Quantity</th>
-                                    <th className="py-2  font-medium block md:table-cell">Subtotal</th>
-                                    <th className="block md:table-cell"></th>
-                                </tr>
-                            </thead>
-                            <tbody className="block md:table-row-group">
-                                <tr className="block md:table-row">
-                                    <td className="py-4 px-4 lg:flex items-center  table-cell">
-                                        <Image
-                                            src="/products/asgaard.png"
-                                            height={100}
-                                            width={100}
-                                            alt="Asgaard sofa"
-                                            className="w-[106px] h-[106px] rounded-md mr-4  bg-[#FBEBB5]"
-                                        />
-                                        <h1 className="text-[#9f9f9f]">Asgaard sofa</h1>
-                                    </td>
-                                    <td className="py-4 px-4 text-[#9f9f9f] block md:table-cell">Rs. 250,000.00</td>
-                                    <td className="py-4 px-4 block md:table-cell">
-                                        <input
-                                            type="number"
-                                            className="w-8 h-8 border border-gray-300 rounded-lg"
-                                        />
-                                    </td>
-                                    <td className="py-4 px-4 block md:table-cell">Rs. 250,000.00</td>
-                                    <td className="py-4 px-4 block md:table-cell">
-                                        <button>
-                                            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M20.625 4H17.125V1.8125C17.125 0.847266 16.3402 0.0625 15.375 0.0625H6.625C5.65977 0.0625 4.875 0.847266 4.875 1.8125V4H1.375C0.891016 4 0.5 4.39102 0.5 4.875V5.75C0.5 5.87031 0.598437 5.96875 0.71875 5.96875H2.37031L3.0457 20.2695C3.08945 21.202 3.86055 21.9375 4.79297 21.9375H17.207C18.1422 21.9375 18.9105 21.2047 18.9543 20.2695L19.6297 5.96875H21.2812C21.4016 5.96875 21.5 5.87031 21.5 5.75V4.875C21.5 4.39102 21.109 4 20.625 4ZM15.1562 4H6.84375V2.03125H15.1562V4Z" fill="#FBEBB5" />
-                                            </svg>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+            <main className="mb-80 lg:mb-0">
+                <Hero name="Cart" />
+                <div className="px-4 lg:px-32 py-8">
+                    <div className="space-y-4 lg:space-y-8">
+                        {cartItems.length > 0 ? (
+                            cartItems.map((item) => (
+                                <div
+                                    key={item._id}
+                                    className="flex flex-col lg:flex-row items-start lg:items-center justify-between bg-white p-4 lg:p-6 border border-[#D9D9D9] rounded-[10px]"
+                                >
+                                    <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4 lg:gap-8 w-full lg:w-auto">
+                                        {item.image && (
+                                            <Image
+                                                src={urlFor(item.image).url()}
+                                                className="w-full lg:w-32 h-48 lg:h-32 object-cover rounded-lg"
+                                                alt={item.name}
+                                                width={500}
+                                                height={500}
+                                            />
+                                        )}
+                                        <div className="flex flex-col gap-2 lg:gap-4 w-full lg:w-auto">
+                                            <h2 className="text-xl lg:text-2xl">{item.name}</h2>
+                                            <p className="text-[#9F9F9F] text-lg lg:text-xl">$ {item.price}</p>
+                                            <div className="flex items-center gap-4 mt-2 lg:mt-0">
+                                                <button
+                                                    onClick={() => handleDecrement(item._id)}
+                                                    className="w-8 h-8 border border-[#9F9F9F] rounded-md"
+                                                >
+                                                    -
+                                                </button>
+                                                <span>{item.inventory}</span>
+                                                <button
+                                                    onClick={() => handleIncrement(item._id)}
+                                                    className="w-8 h-8 border border-[#9F9F9F] rounded-md"
+                                                >
+                                                    +
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={() => handleRemove(item._id)}
+                                        className="text-[#B88E2F] hover:text-red-600 mt-4 lg:mt-0"
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-[#9F9F9F] text-center text-lg lg:text-xl">Your cart is empty.</p>
+                        )}
                     </div>
 
-
-
-                        <div className="bg-yellow-50 rounded-lg p-6 lg:w-[393px] h-[390px] mx-8 lg:mx-0">
-                            <h2 className="text-xl font-semibold mb-24 relative lg:left-28">Cart Totals</h2>
-                            <div className="flex justify-between mb-2">
-                                <span className="font-medium">Subtotal</span>
-                                <span className="text-[#9F9F9F]">Rs. 250,000.00</span>
+                    {cartItems.length > 0 && (
+                        <div className="mt-8 lg:mt-16 flex flex-col gap-4 lg:gap-8 items-center lg:items-end">
+                            <div className="flex gap-16 lg:gap-32">
+                                <h2 className="text-xl lg:text-2xl">Total:</h2>
+                                <p className="text-xl lg:text-2xl text-[#B88E2F]">
+                                    ${calculateTotal().toFixed(2)}
+                                </p>
                             </div>
-                            <div className="flex justify-between font-semibold text-lg mb-4">
-                                <span>Total</span>
-                                <span className="text-[#B88E2F]">Rs. 250,000.00</span>
-                            </div>
-                            <div className="flex justify-center items-center">
-                                <button className=" my-6 h-[64px] w-[205px] border rounded-lg">
-                                    <Link href="/checkout">Check Out</Link>
-                                </button>
-                            </div>
+                            <button
+                                onClick={handleProceed}
+                                className="w-full lg:w-[215px] h-12 lg:h-16 border border-black rounded-[15px] hover:bg-[#B88E2F] hover:text-white hover:border-[#B88E2F] transition-all"
+                            >
+                                Proceed to Checkout
+                            </button>
                         </div>
-                    </div>
-                </section>
+                    )}
+                </div>
                 <Feature />
             </main>
-
-
-
-
         </>
     )
 };
+
+export default CartPage;
