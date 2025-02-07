@@ -107,7 +107,14 @@ export default function CheckoutPage() {
                     icon: "success"
                 }
 
-                )
+                ).then(() => {
+                    Swal.fire({
+                        title: "We'll keep you updated",
+                        text: "We'll update you on your order status via email",
+                        icon: "info"
+                    })
+
+                })
 
             }
 
@@ -138,7 +145,7 @@ export default function CheckoutPage() {
                     </nav>
 
                     <div className="grid lg:grid-cols-2 gap-8">
-                        {/* Order Summary */}
+
                         <div className="border border-[#D9D9D9] rounded-[10px] p-6">
                             <h2 className="text-2xl mb-8">Order Summary</h2>
                             <div className="space-y-6">
@@ -184,7 +191,6 @@ export default function CheckoutPage() {
                             </div>
                         </div>
 
-                        {/* Billing Form */}
                         <div className="border border-[#D9D9D9] rounded-[10px] p-6">
                             <h2 className="text-2xl mb-8">Billing Information</h2>
                             <div className="space-y-6">
