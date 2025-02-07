@@ -1,5 +1,4 @@
 
-
 'use client';
 import { addToCart } from "../actions/actions"
 import { Product } from "@/types/products"
