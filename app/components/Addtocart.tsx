@@ -4,7 +4,7 @@ import { Product } from "@/types/products"
 import Swal from 'sweetalert2'
 
 export function CartButton({ product }: { product: Product }) {
-    const handleAddToCart = (e: React.MouseEvent, product: Product) => {
+    const handleAddToCart = (e: React.MouseEvent) => {
         e.preventDefault()
         Swal.fire({
             position: 'top',
@@ -18,7 +18,7 @@ export function CartButton({ product }: { product: Product }) {
     }
     return (
 
-        <button className='text-xl w-[215px] h-16 rounded-[15px] border-[1px] border-black' onClick={(e) => handleAddToCart(e, product)}>Add to cart</button>
+        <button className='text-xl w-[215px] h-16 rounded-[15px] border-[1px] border-black' onClick={handleAddToCart}>Add to cart</button>
 
     )
 
