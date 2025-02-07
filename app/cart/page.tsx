@@ -3,6 +3,8 @@
 import { Product } from "@/types/products";
 import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
+import { useRouter } from "next/navigation";
+import Footer from "../components/Footer";
 import {
     getCartItems,
     removeFromCart,
@@ -68,7 +70,7 @@ const CartPage = () => {
             0
         );
     };
-
+    const router = useRouter();
     const handleProceed = () => {
         Swal.fire({
             title: "Processing your order...",
@@ -85,6 +87,7 @@ const CartPage = () => {
                     "Your order has been successfully processed!",
                     "success"
                 );
+                router.push("/checkout");
 
                 setCartItems([]);
             }
@@ -155,6 +158,7 @@ const CartPage = () => {
                                 </p>
                             </div>
                             <button
+                                type="submit"
                                 onClick={handleProceed}
                                 className="w-full lg:w-[215px] h-12 lg:h-16 border border-black rounded-[15px] hover:bg-[#B88E2F] hover:text-white hover:border-[#B88E2F] transition-all"
                             >
@@ -165,6 +169,7 @@ const CartPage = () => {
                 </div>
                 <Feature />
             </main>
+            <Footer />
         </>
     )
 };

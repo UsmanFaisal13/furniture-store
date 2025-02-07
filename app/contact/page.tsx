@@ -2,6 +2,7 @@ import Header from "../components/Header"
 import Hero from "../components/Hero"
 import Feature from "../components/Feature"
 import Image from "next/image"
+import Footer from "../components/Footer"
 
 export default function Page() {
     return (
@@ -71,6 +72,7 @@ export default function Page() {
                 </section>
                 <Feature />
             </main>
+            <Footer />
 
 
 

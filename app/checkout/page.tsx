@@ -1,103 +1,302 @@
-import Header from "../components/Header"
-import Hero from "../components/Hero"
-import Feature from "../components/Feature"
+"use client";
 
-export default function Page() {
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import { getCartItems } from "@/app/actions/actions";
+import Link from "next/link";
+import { Product } from "@/types/products";
+import { urlFor } from "@/sanity/lib/image";
+import { CgChevronRight } from "react-icons/cg";
+import Header from "@/app/components/Header";
+import Hero from "@/app/components/Hero";
+import Feature from "@/app/components/Feature";
+import Footer from "@/app/components/Footer";
+import { client } from "@/sanity/lib/client";
+import Swal from "sweetalert2";
+
+
+
+
+export default function CheckoutPage() {
+    const [cartItems, setCartItems] = useState<Product[]>([]);
+    const [discount, setDiscount] = useState<number>(0);
+    const [formValues, setFormValues] = useState({
+        firstName: "",
+        lastName: "",
+        address: "",
+        city: "",
+        zipCode: "",
+        phone: "",
+        email: "",
+    });
+
+    const [formErrors, setFormErrors] = useState({
+        firstName: false,
+        lastName: false,
+        address: false,
+        city: false,
+        zipCode: false,
+        phone: false,
+        email: false,
+    });
+
+    useEffect(() => {
+        setCartItems(getCartItems());
+        const appliedDiscount = localStorage.getItem("appliedDiscount");
+        if (appliedDiscount) {
+            setDiscount(Number(appliedDiscount));
+        }
+    }, []);
+
+    const subtotal = cartItems.reduce(
+        (total, item) => total + item.price * item.inventory
+        ,
+        0
+    );
+    const total = Math.max(subtotal - discount, 0);
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setFormValues({
+            ...formValues,
+            [e.target.id]: e.target.value,
+        });
+    };
+
+    const validateForm = () => {
+        const errors = {
+            firstName: !formValues.firstName,
+            lastName: !formValues.lastName,
+            address: !formValues.address,
+            city: !formValues.city,
+            zipCode: !formValues.zipCode,
+            phone: !formValues.phone,
+            email: !formValues.email,
+        };
+        setFormErrors(errors);
+        return Object.values(errors).every((error) => !error);
+    };
+
+    const handlePlaceOrder = async () => {
+        if (validateForm()) {
+
+
+            const orderData = {
+
+                _type: 'order',
+                firstName: formValues.firstName,
+                lastName: formValues.lastName,
+                email: formValues.email,
+                phone: formValues.phone,
+                address: formValues.address,
+                city: formValues.city,
+                zipCode: formValues.zipCode,
+                items: cartItems,
+                total: total,
+                discount: discount,
+
+
+                cartItems: cartItems.map((item) => ({ _type: 'reference', _ref: item._id })),
+                orderDate: new Date().toISOString()
+            };
+            try {
+                await client.create(orderData);
+                localStorage.removeItem('appliedDiscount');
+                Swal.fire({
+                    title: "Order Placed",
+                    text: "Your order has been placed successfully",
+                    icon: "success"
+                }
+
+                )
+
+            }
+
+
+
+
+
+
+
+            catch (error) {
+                console.error(error);
+            }
+        }
+    }
+
     return (
         <>
             <Header />
-            <Hero name="Checkout" />
             <main className="mb-80 lg:mb-0">
-                <section className="w-full px-4 py-8 lg:max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-32">
-                    <div className="flex flex-col flex-wrap">
-                        <h1 className="font-semibold text-4xl my-16">Billing details</h1>
-                        <form className="flex flex-col gap-8">
-                            <div className="flex gap-40">
-                                <h1 className="font-medium">First Name</h1>
-                                <h1 className="font-medium relative right-8 lg:right-0 hidden lg:block">Last Name</h1>
+                <Hero name="Checkout" />
+                <div className="px-4 lg:px-32 py-8">
+                    <nav className="flex items-center gap-4 mb-8">
+                        <Link href="/cart" className="text-[#9F9F9F] hover:text-[#B88E2F]">
+                            Cart
+                        </Link>
+                        <CgChevronRight className="w-4 h-4 text-[#9F9F9F]" />
+                        <span>Checkout</span>
+                    </nav>
+
+                    <div className="grid lg:grid-cols-2 gap-8">
+                        {/* Order Summary */}
+                        <div className="border border-[#D9D9D9] rounded-[10px] p-6">
+                            <h2 className="text-2xl mb-8">Order Summary</h2>
+                            <div className="space-y-6">
+                                {cartItems.map((item) => (
+                                    <div key={item._id} className="flex gap-4 pb-4 border-b border-[#D9D9D9]">
+                                        <div className="w-32 h-32">
+                                            {item.image && (
+                                                <Image
+                                                    src={urlFor(item.image).url()}
+                                                    alt={item.name}
+                                                    width={128}
+                                                    height={128}
+                                                    className="object-cover"
+                                                />
+                                            )}
+                                        </div>
+                                        <div className="flex-1">
+                                            <h3 className="text-xl">{item.name}</h3>
+                                            <p className="text-[#9F9F9F]">
+                                                Quantity: {item.inventory}
+                                            </p>
+                                            <p className="text-[#B88E2F] text-xl">
+                                                ${item.price * item.inventory}
+                                            </p>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
-                            <div className="flex flex-wrap gap-8">
-                                <input type="text" className="border-[1px] border-[#9f9f9f] lg:w-[211px] h-[75px] rounded-[10px]" />
-                                <h1 className="font-medium lg:hidden block">Last Name</h1>
-                                <input type="text" className="border-[1px] border-[#9f9f9f] lg:w-[211px] h-[75px] rounded-[10px]" />
-                            </div>
-                            <label className="font-medium">Company Name</label>
-                            <input type="text" className="border-[1px] border-[#9f9f9f] w-full lg:w-[452px] h-[75px] rounded-[10px]" />
-                            <label className="font-medium">Country / Region</label>
-                            <input type="text" className="border-[1px] border-[#9f9f9f] w-full lg:w-[452px] h-[75px] rounded-[10px]" />
-                            <label className="font-medium">Street address</label>
-                            <input type="text" className="border-[1px] border-[#9f9f9f] w-full lg:w-[452px] h-[75px] rounded-[10px]" />
-                            <label className="font-medium">Town / City</label>
-                            <input type="text" className="border-[1px] border-[#9f9f9f] w-full lg:w-[452px] h-[75px] rounded-[10px]" />
-                            <label className="font-medium">Province</label>
-                            <input type="text" className="border-[1px] border-[#9f9f9f] w-full lg:w-[452px] h-[75px] rounded-[10px]" />
-                            <label className="font-medium">ZIP code</label>
-                            <input type="text" className="border-[1px] border-[#9f9f9f] w-full lg:w-[452px] h-[75px] rounded-[10px]" />
-                            <label className="font-medium">Phone</label>
-                            <input type="text" className="border-[1px] border-[#9f9f9f] w-full lg:w-[452px] h-[75px] rounded-[10px]" />
-                            <label className="font-medium">Email address</label>
-                            <input type="text" className="border-[1px] border-[#9f9f9f] w-full lg:w-[452px] h-[75px] rounded-[10px]" />
 
-                            <input type="text" placeholder="Additional information" className=" p-6 my-8 border-[1px] border-[#9f9f9f] w-full lg:w-[452px] h-[75px] rounded-[10px]" />
-
-
-                        </form>
-
-                    </div>
-                    <div >
-                        <div className="grid grid-cols-2 gap-28 border-b-2 border-[#d9d9d9] pb-8 ">
-                            <div className="flex flex-col gap-8">
-                                <h1 className="font-semibold text-2xl mt-20">Product</h1>
-                                <p className="text-[#9F9F9F]">Asgaard sofa</p>
-                                <p>Subtotal</p>
-                                <p>Total</p>
-
-                            </div>
-                            <div className="flex flex-col gap-8 items-end">
-                                <h1 className="font-semibold text-2xl mt-20">Subtotal</h1>
-                                <p>Rs. 250,000.00</p>
-                                <p>Rs. 250,000.00</p>
-                                <h1 className="text-[#B88E2F] font-bold text-2xl">Rs. 250,000.00</h1>
-
-
-                            </div>
-                        </div>
-                        <div className="my-8">
-                            <h3 className="text-lg font-medium my-4">
-                                <li>Direct Bank Transfer</li>
-                            </h3>
-                            <div className="flex flex-col gap-4">
-
-                                <p className="font-light text-[#9F9F9F] mb-2">
-                                    Make your payment directly into our bank account. Please use your Order ID as the payment reference. Your order will not be shipped until the funds have cleared in our account.
-                                </p>
-                                <label className="flex items-center mb-2 font-medium text-[#9F9F9F]">
-                                    <input type="radio" name="payment-method" className="mr-2 " />
-                                    Direct Bank Transfer
-                                </label>
-                                <label className="flex items-center mb-2 font-medium  text-[#9F9F9F]">
-                                    <input type="radio" name="payment-method" className="mr-2" />
-                                    Cash on Delivery
-                                </label>
-                                <p className=" mb-2">
-                                    Your personal data will be used to support your experience <br /> throughout this website,
-                                    to manage access to your account, and for other purposes described in our <b>privacy policy.</b> </p>
+                            <div className="mt-8 space-y-2">
+                                <div className="flex justify-between">
+                                    <p>Subtotal:</p>
+                                    <p>${subtotal}</p>
+                                </div>
+                                <div className="flex justify-between">
+                                    <p>Discount:</p>
+                                    <p>-${discount}</p>
+                                </div>
+                                <div className="flex justify-between text-xl font-medium pt-4">
+                                    <p>Total:</p>
+                                    <p className="text-[#B88E2F]">${total.toFixed(2)}</p>
+                                </div>
                             </div>
                         </div>
 
-                        <button className="h-[64px] lg:w-[318px] w-full border border-black  py-2 rounded-lg lg:ml-16 "
-                        >
-                            Place order
-                        </button>
+                        {/* Billing Form */}
+                        <div className="border border-[#D9D9D9] rounded-[10px] p-6">
+                            <h2 className="text-2xl mb-8">Billing Information</h2>
+                            <div className="space-y-6">
+                                <div className="grid lg:grid-cols-2 gap-6">
+                                    <div>
+                                        <label className="block mb-2">First Name</label>
+                                        <input
+                                            id="firstName"
+                                            className="w-full h-[75px] border-2 border-[#9F9F9F] rounded-[10px] px-4"
+                                            placeholder="Enter your first name"
+                                            value={formValues.firstName}
+                                            onChange={handleInputChange}
+                                        />
+                                        {formErrors.firstName && (
+                                            <p className="text-red-500 mt-1">First name is required</p>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <label className="block mb-2">Last Name</label>
+                                        <input
+                                            id="lastName"
+                                            className="w-full h-[75px] border-2 border-[#9F9F9F] rounded-[10px] px-4"
+                                            placeholder="Enter your last name"
+                                            value={formValues.lastName}
+                                            onChange={handleInputChange}
+                                        />
+                                        {formErrors.lastName && (
+                                            <p className="text-red-500 mt-1">Last name is required</p>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <label className="block mb-2">Address</label>
+                                        <input
+                                            id="address"
+                                            className="w-full h-[75px] border-2 border-[#9F9F9F] rounded-[10px] px-4"
+                                            placeholder="Enter your address"
+                                            value={formValues.address}
+                                            onChange={handleInputChange}
+                                        />
+                                        {formErrors.address && (
+                                            <p className="text-red-500 mt-1">address is required</p>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <label className="block mb-2">City</label>
+                                        <input
+                                            id="city"
+                                            className="w-full h-[75px] border-2 border-[#9F9F9F] rounded-[10px] px-4"
+                                            placeholder="Enter your city"
+                                            value={formValues.city}
+                                            onChange={handleInputChange}
+                                        />
+                                        {formErrors.city && (
+                                            <p className="text-red-500 mt-1">city name is required</p>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <label className="block mb-2">Zip Code</label>
+                                        <input
+                                            id="zipCode"
+                                            className="w-full h-[75px] border-2 border-[#9F9F9F] rounded-[10px] px-4"
+                                            placeholder="Enter your zip code"
+                                            value={formValues.zipCode}
+                                            onChange={handleInputChange}
+                                        />
+                                        {formErrors.zipCode && (
+                                            <p className="text-red-500 mt-1">zip code is required</p>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <label className="block mb-2">Phone number</label>
+                                        <input
+                                            id="phone"
+                                            className="w-full h-[75px] border-2 border-[#9F9F9F] rounded-[10px] px-4"
+                                            placeholder="Enter your phone number"
+                                            value={formValues.phone}
+                                            onChange={handleInputChange}
+                                        />
+                                        {formErrors.phone && (
+                                            <p className="text-red-500 mt-1">Phone number is required</p>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <label className="block mb-2">Email</label>
+                                        <input
+                                            id="email"
+                                            className="w-full h-[75px] border-2 border-[#9F9F9F] rounded-[10px] px-4"
+                                            placeholder="Enter your first email"
+                                            value={formValues.email}
+                                            onChange={handleInputChange}
+                                        />
+                                        {formErrors.email && (
+                                            <p className="text-red-500 mt-1">email is required</p>
+                                        )}
+                                    </div>
+
+                                </div>
+
+                                <button
+
+                                    onClick={handlePlaceOrder}
+                                    className="w-full lg:w-[215px] h-16 border border-black rounded-[15px] hover:bg-[#B88E2F] hover:text-white hover:border-[#B88E2F] transition-all"
+                                >
+                                    Place Order
+                                </button>
+                            </div>
+                        </div>
                     </div>
-
-                </section >
-
-
-
-                <Feature />
+                </div>
             </main>
-
+            <Feature />
+            <Footer />
         </>
-    )
+    );
 };

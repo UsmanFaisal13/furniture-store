@@ -3,6 +3,8 @@ import Hero from "../components/Hero"
 import Feature from "../components/Feature"
 import Image from "next/image"
 import Link from "next/link"
+import Footer from "../components/Footer"
+
 
 
 export default function Page() {
@@ -255,6 +257,7 @@ export default function Page() {
 
 
             </main >
+            <Footer />
 
 
 

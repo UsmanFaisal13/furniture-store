@@ -10,7 +10,7 @@ import { client } from "@/sanity/lib/client"
 import { allProducts } from "@/sanity/lib/queries"
 import Link from "next/link"
 import { SanityImageSource } from '@sanity/image-url/lib/types/types'
-
+import Footer from "@/app/components/Footer"
 
 interface Product {
     _id: string
@@ -56,6 +56,7 @@ export default function Page() {
                 </section>
                 <Feature />
             </main>
+            <Footer />
         </>
     )
 }
