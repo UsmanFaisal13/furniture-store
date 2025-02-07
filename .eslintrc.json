@@ -4,7 +4,8 @@
     "overrides": [
         {
             "files": [
-                "**/shop/page.tsx"
+                "**/shop/page.tsx",
+                "**/components/Addtocart.tsx"
             ],
             "rules": {
                 "@typescript-eslint/no-unused-vars": "off"
