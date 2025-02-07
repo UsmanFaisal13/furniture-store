@@ -108,11 +108,17 @@ export default function CheckoutPage() {
                 }
 
                 ).then(() => {
+
+
+
                     Swal.fire({
                         title: "We'll keep you updated",
                         text: "We'll update you on your order status via email",
                         icon: "info"
                     })
+                    setCartItems([]);
+
+
 
                 })
 
