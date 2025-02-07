@@ -1,11 +1,13 @@
+
 import Image from 'next/image'
 import { urlFor } from '@/sanity/lib/image'
+import { SanityImageSource } from '@sanity/image-url/lib/types/types'
 
 interface ProductCardProps {
     _id: string
     name: string
     price: number
-    image: any
+    image: SanityImageSource
 };
 
 const ProductCard = ({ name, price, image }: ProductCardProps) => {

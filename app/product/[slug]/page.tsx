@@ -1,19 +1,32 @@
 
 import Image from "next/image"
 import Header from "@/app/components/Header"
-import { AiFillStar as Star } from 'react-icons/ai'
+
 import { groq } from "next-sanity"
 import { client } from '@/sanity/lib/client'
 import { Metadata } from "next"
-import { Product } from "@/types/products"
+
 import { notFound } from "next/navigation";
 import { urlFor } from "@/sanity/lib/image"
+import { SanityImageSource } from "@sanity/image-url/lib/types/types"
+interface Product {
+    _id: string;
+    name: string;
+    price: number;
+    image: SanityImageSource;
+    description: string;
+    stockLevel: number;  // Add this line
+    slug: {
+        current: string;
+    };
+}
 
 
 
 interface ProductPageProps {
     params: Promise<{ slug: string }> // Wrap params in Promise
 }
+
 async function getProduct(slug: string): Promise<Product | null> {
     return client.fetch(
         groq`*[_type == "product" && slug.current == $slug][0]{
@@ -99,16 +112,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                             <h1 className="text-2xl text-[#9f9f9f]">$ {product.price}</h1>
                         </div>
                         <div className="flex items-center gap-6">
-                            <div className="flex gap-3">
-                                {[...Array(5)].map((_, i) => (
-                                    <Star
-                                        key={i}
-                                        className={`w-6 h-6 ${i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'
-                                            }`}
-                                    />
-                                ))}
 
-                            </div>
                             <svg width="2" height="37" viewBox="0 0 2 37" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <line x1="1" x2="1" y2="37" stroke="#9F9F9F" stroke-width="2" />
                             </svg>

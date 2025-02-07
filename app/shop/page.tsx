@@ -3,18 +3,22 @@ import Header from "../components/Header"
 import Hero from "../components/Hero"
 import Feature from "../components/Feature"
 import ProductCard from "../components/productCard"
-
-
-
-
-
-
 import { useEffect, useState } from "react"
-import { Product } from "@/types/products"
+
 import { client } from "@/sanity/lib/client"
 import { allProducts } from "@/sanity/lib/queries"
 import Link from "next/link"
+import { SanityImageSource } from '@sanity/image-url/lib/types/types'
 
+interface Product {
+    _id: string
+    name: string
+    price: number
+    image: SanityImageSource
+    slug: {
+        current: string
+    }
+}
 
 
 export default function Page() {
